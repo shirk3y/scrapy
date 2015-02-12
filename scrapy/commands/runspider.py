@@ -5,7 +5,7 @@ from importlib import import_module
 from scrapy.utils.spider import iter_spider_classes
 from scrapy.command import ScrapyCommand
 from scrapy.exceptions import UsageError
-from scrapy.utils.conf import arglist_to_dict
+from scrapy.utils.conf import arglist_to_dict, json_arglist_to_dict
 
 
 def _import_file(filepath):
@@ -41,6 +41,9 @@ class Command(ScrapyCommand):
         ScrapyCommand.add_options(self, parser)
         parser.add_option("-a", dest="spargs", action="append", default=[], metavar="NAME=VALUE",
                           help="set spider argument (may be repeated)")
+        parser.add_option("--arg-json", dest="json_spargs", action="append", default=[],
+                          metavar="NAME=JSON_STRING",
+                          help="set spider argument provided in JSON format (may be repeated)")
         parser.add_option("-o", "--output", metavar="FILE",
                           help="dump scraped items into FILE (use - for stdout)")
         parser.add_option("-t", "--output-format", metavar="FORMAT",
@@ -52,6 +55,11 @@ class Command(ScrapyCommand):
             opts.spargs = arglist_to_dict(opts.spargs)
         except ValueError:
             raise UsageError("Invalid -a value, use -a NAME=VALUE", print_help=False)
+        try:
+            opts.spargs.update(json_arglist_to_dict(opts.json_spargs))
+        except ValueError:
+            raise UsageError("Invalid --arg-json value, use -a NAME=JSON_STRING",
+                             print_help=False)
         if opts.output:
             if opts.output == '-':
                 self.settings.set('FEED_URI', 'stdout:', priority='cmdline')

@@ -5,7 +5,7 @@ import os
 from optparse import OptionGroup
 from twisted.python import failure
 
-from scrapy.utils.conf import arglist_to_dict
+from scrapy.utils.conf import arglist_to_dict, json_arglist_to_dict
 from scrapy.exceptions import UsageError
 
 
@@ -71,6 +71,9 @@ class ScrapyCommand(object):
             help="write process ID to FILE")
         group.add_option("-s", "--set", action="append", default=[], metavar="NAME=VALUE",
             help="set/override setting (may be repeated)")
+        group.add_option("--set-json", action="append", default=[],
+            metavar="NAME=JSON_STRING",
+            help="set/override setting provided in JSON format (may be repeated)")
         group.add_option("--pdb", action="store_true", help="enable pdb on failure")
 
         parser.add_option_group(group)
@@ -81,6 +84,12 @@ class ScrapyCommand(object):
                                   priority='cmdline')
         except ValueError:
             raise UsageError("Invalid -s value, use -s NAME=VALUE", print_help=False)
+        try:
+            self.settings.setdict(json_arglist_to_dict(opts.set_json),
+                                  priority='cmdline')
+        except ValueError:
+            raise UsageError("Invalid --set-json value, use --set-json NAME=JSON_STRING",
+                             print_help=False)
 
         if opts.logfile:
             self.settings.set('LOG_ENABLED', True, priority='cmdline')

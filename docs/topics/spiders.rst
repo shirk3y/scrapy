@@ -289,6 +289,31 @@ Spiders receive arguments in their constructors::
             self.start_urls = ['http://www.example.com/categories/%s' % category]
             # ...
 
+To pass more complex arguments like dicts and lists use ``arg-json`` instead.
+Each argument must be JSON-encoded. For example::
+
+    scrapy crawl myspider --arg-json start_urls='["http://www.example.com", "http://dmoz.com"]'
+
+Spider will now start crawling with urls passed via command line.
+
+Note:: JSON args that contain whitespaces or characters interpreted by Bash like
+double quotes, pipes, etc. should be enclosed with single quotes
+(See example above).
+
+
+``arg-json`` can be also used to enforce argument type like ``int``:
+
+    scrapy crawl myspider --arg-json my_int_value=10
+
+``float``:
+
+    scrapy crawl myspider --arg-json my_float_value=1.5
+
+or ``bool``:
+
+    scrapy crawl myspider --arg-json my_bool_value=true
+
+
 Spider arguments can also be passed through the Scrapyd ``schedule.json`` API.
 See `Scrapyd documentation`_.
 

@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 from operator import itemgetter
 
 import six
@@ -24,6 +25,14 @@ def arglist_to_dict(arglist):
     dict
     """
     return dict(x.split('=', 1) for x in arglist)
+
+
+def json_arglist_to_dict(json_arglist):
+    """Convert a list of arguments like
+    ['arg1=["first", "second"]', 'arg2={"key": "value"}'] to a dict
+    """
+    dict_ = arglist_to_dict(json_arglist)
+    return {k: json.loads(v) for k, v in dict_.iteritems()}
 
 
 def closest_scrapy_cfg(path='.', prevpath=None):
